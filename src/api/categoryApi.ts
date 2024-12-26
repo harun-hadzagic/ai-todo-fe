@@ -1,4 +1,3 @@
-// categoryApi.ts (API Calls for Category Suggestions)
 import axios from 'axios';
 import { Category } from '../types/Category';
 

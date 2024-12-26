@@ -6,6 +6,7 @@ const HomePage: React.FC = () => {
   return (
     <Container
       maxWidth="sm"
+      role="main"
       sx={{
         display: "flex",
         justifyContent: "center",
