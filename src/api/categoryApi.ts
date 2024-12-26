@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Category } from '../types/Category';
 
-const CATEGORY_API_BASE_URL = 'http://localhost:8080/api/category';
+const CATEGORY_API_BASE_URL = 'https://ai-todo-fp84.onrender.com/api/category';
 
 export const getAllCategories = async (): Promise<{ id: number; name: string }[]> => {
     const response = await axios.get(`${CATEGORY_API_BASE_URL}/`);
