@@ -23,18 +23,19 @@ describe("TaskItem Component", () => {
     queryClient = new QueryClient();
 
     // Intercept API calls
-    cy.intercept("DELETE", "/api/tasks/*", { statusCode: 200 }).as(
-      "deleteTask"
-    );
-    cy.intercept("GET", "/api/tasks", { statusCode: 200, body: [mockTask] }).as(
-      "getTasks"
-    );
+    cy.intercept("DELETE", "https://ai-todo-fp84.onrender.com/api/tasks/*", {
+      statusCode: 200,
+    }).as("deleteTask");
+    cy.intercept("GET", "https://ai-todo-fp84.onrender.com/api/tasks/email/*", {
+      statusCode: 200,
+      body: [mockTask],
+    }).as("getTasks");
 
     // Mount the component with QueryClientProvider and MemoryRouter
     mount(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
-          <TaskItem task={mockTask} />
+          <TaskItem task={mockTask} email="test@example.com" />
         </MemoryRouter>
       </QueryClientProvider>
     );
@@ -59,9 +60,12 @@ describe("TaskItem Component", () => {
   });
 
   it("deletes the task when clicking the delete button", () => {
-    cy.get('button[aria-label="delete"]').click();
-    cy.wait("@deleteTask").then((interception) => {
-      cy.wrap(interception.response?.statusCode).should("eq", 200);
+    cy.contains("Sample Task").should("be.visible");
+    cy.get('button[aria-label="delete"]').should("be.visible").click();
+
+    // Wait for the delete request and then check
+    cy.wait("@deleteTask").then(() => {
+      cy.contains("Sample Task").should("not.exist");
     });
   });
 });

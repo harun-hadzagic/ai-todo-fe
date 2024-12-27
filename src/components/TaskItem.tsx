@@ -22,26 +22,30 @@ import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 
 interface TaskItemProps {
   task: Task;
+  email: string;
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
+const TaskItem: React.FC<TaskItemProps> = ({ task, email }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
   const queryClient = useQueryClient();
 
-  const { mutate: deleteTaskMutation, isLoading: isDeleting } = useMutation(
-    deleteTask,
+  const deleteTaskMutation = useMutation(
+    (taskId: number) => deleteTask(taskId),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["tasks"]);
-      },
-      onError: (error) => {
-        console.error("Failed to delete task:", error);
+        setIsDeleted(true);
+        queryClient.invalidateQueries(["tasks", email]);
       },
     }
   );
 
+  if (isDeleted) {
+    return null;
+  }
+
   const handleDelete = () => {
-    deleteTaskMutation(task.id);
+    deleteTaskMutation.mutate(task.id);
   };
 
   const handleEdit = () => {
@@ -156,14 +160,18 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
               aria-label="delete"
               color="error"
               onClick={handleDelete}
-              disabled={isDeleting}
+              disabled={deleteTaskMutation.isLoading}
               sx={{
                 backgroundColor: "#ffcdd2",
                 "&:hover": { backgroundColor: "#ef9a9a" },
                 transition: "all 0.3s ease-in-out",
               }}
             >
-              {isDeleting ? <CircularProgress size={24} /> : <DeleteIcon />}
+              {deleteTaskMutation.isLoading ? (
+                <CircularProgress size={24} />
+              ) : (
+                <DeleteIcon />
+              )}
             </IconButton>
           </Box>
         </CardContent>
