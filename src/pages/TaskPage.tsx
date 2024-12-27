@@ -127,8 +127,8 @@ const TaskPage: React.FC = () => {
       {Object.entries(tasksByCategory).map(([categoryName, tasks]) => (
         <TaskList
           key={categoryName}
-          tasks={tasks}
           categoryName={categoryName}
+          email={email}
         />
       ))}
     </Container>
