@@ -1,5 +1,5 @@
 {
-  "name": "smart-todo",
+  "name": "weather-app",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -52,8 +52,10 @@
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.26.3",
     "@babel/preset-typescript": "^7.26.0",
+    "@cypress/react18": "^2.0.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.3.1",
+    "@types/cypress": "^1.1.6",
     "@types/jest": "^29.5.14",
     "babel-jest": "^29.7.0",
     "cypress": "^13.17.0",
@@ -64,15 +66,8 @@
   },
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
   "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ibecir/ai-todo-fe.git"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ibecir/ai-todo-fe/issues"
-  },
   "homepage": "/"
 }

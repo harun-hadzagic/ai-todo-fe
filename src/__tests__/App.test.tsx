@@ -8,8 +8,8 @@ import App from "../App";
 jest.mock("../pages/HomePage", () => () => (
   <div data-testid="home-page">Mocked HomePage</div>
 ));
-jest.mock("../pages/TaskPage", () => () => (
-  <div data-testid="task-page">Mocked TaskPage</div>
+jest.mock("../pages/WeatherPage", () => () => (
+  <div data-testid="weather-page">Mocked WeatherPage</div>
 ));
 
 describe("App Component", () => {
@@ -26,21 +26,21 @@ describe("App Component", () => {
     expect(screen.getByTestId("home-page")).toBeInTheDocument();
   });
 
-  it("renders the TaskPage for the '/tasks' route", () => {
-    window.history.pushState({}, "TaskPage", "/tasks");
+  it("renders the WeatherPage for the '/weather' route", () => {
+    window.history.pushState({}, "WeatherPage", "/weather");
     renderWithProviders(<App />);
-    expect(screen.getByTestId("task-page")).toBeInTheDocument();
+    expect(screen.getByTestId("weather-page")).toBeInTheDocument();
   });
 
-  it("does not render HomePage when on '/tasks' route", () => {
-    window.history.pushState({}, "TaskPage", "/tasks");
+  it("does not render HomePage when on '/weather' route", () => {
+    window.history.pushState({}, "WeatherPage", "/");
     renderWithProviders(<App />);
-    expect(screen.queryByTestId("home-page")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("weather-page")).not.toBeInTheDocument();
   });
 
-  it("does not render TaskPage when on '/' route", () => {
+  it("does not render WeatherPage when on '/' route", () => {
     window.history.pushState({}, "HomePage", "/");
     renderWithProviders(<App />);
-    expect(screen.queryByTestId("task-page")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("weather-page")).not.toBeInTheDocument();
   });
 });

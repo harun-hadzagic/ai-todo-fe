@@ -1,63 +1,41 @@
-import React, { useState } from "react";
-import { useQuery, useQueryClient } from "react-query";
-import { getTasksByEmail } from "../api/taskApi";
-import { Task } from "../types/Task";
-import TaskList from "../components/TaskList";
-import TaskForm from "../components/TaskForm";
-import { useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useQueryClient } from "react-query";
+import { getAllSavedWeathers } from "../api/weatherApi";
+import { Weather } from "../types/Weather";
+import WeatherList from "../components/WeatherList";
+import WeatherForm from "../components/WeatherForm";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Box, Container, Typography, Paper } from "@mui/material";
 import LoadingSpinner from "../components/LoadingSpinner";
 
-const TaskPage: React.FC = () => {
+const WeatherPage: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const queryClient = useQueryClient();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const email = queryParams.get("email") || "";
 
-  const { data, isLoading, error, refetch } = useQuery(
-    ["tasks", email],
-    () => getTasksByEmail(email),
-    {
-      enabled: !!email,
-      onSuccess: (data) => {
-        const uniqueCategories = Array.from(
-          new Set(data.map((task) => task.category.id))
-        )
-          .map((id) => {
-            const task = data.find((t) => t.category.id === id);
-            return task?.category;
-          })
-          .filter(Boolean);
+  const [weatherData, setWeatherdata] = useState<Weather[]>([])
 
-        queryClient.setQueryData("categories", uniqueCategories);
-      },
-    }
-  );
+  const navigate = useNavigate(); // Get the navigate function from useNavigate
 
-  const tasks = data || [];
+  const handleLogout = () => {
+    navigate('/');
+  };
+  
+  const fetchData = async () => {
+    setIsLoading(true)
+    const allWeather = await getAllSavedWeathers();
+    const filteredData = allWeather.filter((weather: { status: string; }) => weather.status === email);
+    setWeatherdata(filteredData);
+    setIsLoading(false)
+  };
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
-  if (error) {
-    return (
-      <Container>
-        <Typography variant="h6" color="error" align="center" sx={{ mt: 4 }}>
-          Error loading data. Please try again later.
-        </Typography>
-      </Container>
-    );
-  }
-
-  const tasksByCategory = tasks.reduce((acc: Record<string, Task[]>, task) => {
-    if (!acc[task.category.name]) {
-      acc[task.category.name] = [];
-    }
-    acc[task.category.name].push(task);
-    return acc;
-  }, {});
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line
+  }, []);
 
   return (
     <Container
@@ -94,7 +72,7 @@ const TaskPage: React.FC = () => {
               fontSize: { xs: "1.8rem", sm: "2.2rem" },
             }}
           >
-            Tasks for {email}
+            Weather for {email}
           </Typography>
           <Button
             variant="contained"
@@ -109,30 +87,41 @@ const TaskPage: React.FC = () => {
               fontSize: { xs: "0.8rem", sm: "1rem" },
             }}
           >
-            {isCreating ? "Cancel" : "Create New Task"}
+            Look up location
+          </Button>
+          <br/>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleLogout}
+            sx={{
+              textTransform: "none",
+
+              fontSize: { xs: "0.8rem", sm: "1rem" },
+            }}
+          >
+            Log out
           </Button>
         </Box>
         {isCreating && (
-          <TaskForm
+          <WeatherForm
             open={isCreating}
             onClose={() => setIsCreating(false)}
             onSubmitSuccess={() => {
               setIsCreating(false);
-              refetch();
+              fetchData();
             }}
             categories={queryClient.getQueryData("categories") || []}
           />
         )}
       </Paper>
-      {Object.entries(tasksByCategory).map(([categoryName, tasks]) => (
-        <TaskList
-          key={categoryName}
-          categoryName={categoryName}
-          email={email}
-        />
-      ))}
+      {isLoading && <LoadingSpinner/>}
+        {weatherData.length > 0 && <WeatherList
+          weatherData={weatherData}
+          fetchData={fetchData}
+        />}
     </Container>
   );
 };
 
-export default TaskPage;
+export default WeatherPage;

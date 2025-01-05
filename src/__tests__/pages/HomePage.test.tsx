@@ -16,9 +16,9 @@ describe("HomePage", () => {
 
   it("renders the welcome message", () => {
     render(<HomePage />);
-    expect(screen.getByText("Welcome to Smart Todo List")).toBeInTheDocument();
+    expect(screen.getByText("Welcome to Weather App")).toBeInTheDocument();
     expect(
-      screen.getByText("Manage your tasks efficiently and effortlessly.")
+      screen.getByText("Look up weather forcasts effortlessly.")
     ).toBeInTheDocument();
   });
 
@@ -29,14 +29,14 @@ describe("HomePage", () => {
 
   it("applies the correct styles to typography", () => {
     render(<HomePage />);
-    const title = screen.getByText("Welcome to Smart Todo List");
+    const title = screen.getByText("Welcome to Weather App");
     expect(title).toHaveStyle({
       fontWeight: 700,
       color: "#1976d2",
     });
 
     const subtitle = screen.getByText(
-      "Manage your tasks efficiently and effortlessly."
+      "Look up weather forcasts effortlessly."
     );
     expect(subtitle).toHaveStyle({
       color: "#616161",

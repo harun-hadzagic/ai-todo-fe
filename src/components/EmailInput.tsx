@@ -8,7 +8,7 @@ const EmailInput: React.FC = () => {
 
   const handleSubmit = () => {
     if (email) {
-      navigate(`/tasks?email=${email}`);
+      navigate(`/weather?email=${email}`);
     }
   };
 
@@ -29,7 +29,7 @@ const EmailInput: React.FC = () => {
         onClick={handleSubmit}
         disabled={!email}
       >
-        View Tasks
+        Enter
       </Button>
     </Box>
   );

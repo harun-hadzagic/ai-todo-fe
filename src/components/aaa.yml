@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:mysql://weather-app-do-user-18673960-0.m.db.ondigitalocean.com:25060/weather-app
+    username: doadmin
+    password: AVNS_ZV-srAl6ZDFeNW4Q5Fq
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+openai:
+  secret: "sk-proj-test"
+
+openweather:
+  api: "c402cee15b104c29655b776e7784c32d"
+  apiUrl: "https://api.openweathermap.org/data/2.5/weather"
+
+email:
+  mailgun:
+    from-email: weatherApp <noreply@weatherApp.org>
+    username: api
+    password: key-smt
+    frontend-url: 'https://localhost:3000/'
+    frontend-reset-password-url: 'https://localhost:3000/'

@@ -38,14 +38,14 @@ const HomePage: React.FC = () => {
                 fontSize: { xs: "1.6rem", sm: "2rem" },
               }}
             >
-              Welcome to Smart Todo List
+              Welcome to Weather App
             </Typography>
             <Typography
               variant="body1"
               color="textSecondary"
               sx={{ fontSize: { xs: "1rem", sm: "1.2rem" }, color: "#616161" }}
             >
-              Manage your tasks efficiently and effortlessly.
+              Look up weather forcasts effortlessly.
             </Typography>
           </Box>
           <EmailInput />
