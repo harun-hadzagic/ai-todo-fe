@@ -1,39 +1,44 @@
-import React, { useEffect, useState } from "react";
-import { useQueryClient } from "react-query";
+import { useEffect, useState } from "react";
 import { getAllSavedWeathers } from "../api/weatherApi";
-import { Weather } from "../types/Weather";
 import WeatherList from "../components/WeatherList";
 import WeatherForm from "../components/WeatherForm";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Box, Container, Typography, Paper } from "@mui/material";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { getSearchHistoryForUser } from "../api/searchHistory";
 
-const WeatherPage: React.FC = () => {
+const WeatherPage = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const queryClient = useQueryClient();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const email = queryParams.get("email") || "";
 
-  const [weatherData, setWeatherdata] = useState<Weather[]>([])
+  const [weatherData, setWeatherData] = useState([]);
+  const [searchHistory, setSearchHistory] = useState([]);
 
   const navigate = useNavigate(); // Get the navigate function from useNavigate
 
   const handleLogout = () => {
     navigate('/');
   };
-  
+
+  const fetchSearchHistory = async () => {
+    const userSearchHistory = await getSearchHistoryForUser(email);
+    setSearchHistory(userSearchHistory);
+  };
+
   const fetchData = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     const allWeather = await getAllSavedWeathers();
-    const filteredData = allWeather.filter((weather: { status: string; }) => weather.status === email);
-    setWeatherdata(filteredData);
-    setIsLoading(false)
+    const filteredData = allWeather.filter(weather => weather.status === email);
+    setWeatherData(filteredData);
+    setIsLoading(false);
   };
 
   useEffect(() => {
     fetchData();
+    fetchSearchHistory();
     // eslint-disable-next-line
   }, []);
 
@@ -89,14 +94,13 @@ const WeatherPage: React.FC = () => {
           >
             Look up location
           </Button>
-          <br/>
+          <br />
           <Button
             variant="contained"
             color="error"
             onClick={handleLogout}
             sx={{
               textTransform: "none",
-
               fontSize: { xs: "0.8rem", sm: "1rem" },
             }}
           >
@@ -111,15 +115,18 @@ const WeatherPage: React.FC = () => {
               setIsCreating(false);
               fetchData();
             }}
-            categories={queryClient.getQueryData("categories") || []}
+            searchHistory={searchHistory}
+            fetchSearchHistory={fetchSearchHistory}
           />
         )}
       </Paper>
-      {isLoading && <LoadingSpinner/>}
-        {weatherData.length > 0 && <WeatherList
+      {isLoading && <LoadingSpinner />}
+      {weatherData.length > 0 && (
+        <WeatherList
           weatherData={weatherData}
           fetchData={fetchData}
-        />}
+        />
+      )}
     </Container>
   );
 };
