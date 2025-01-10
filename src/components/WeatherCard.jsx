@@ -14,21 +14,34 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import LoadingSpinner from "./LoadingSpinner";
 
-
-const WeatherCard = ({ weather , handleDelete, handleEdit}) => {
+const WeatherCard = ({ weather, handleDelete, handleEdit }) => {
   const [unitSystem, setUnitSystem] = useState("metric");
   const [openModal, setOpenModal] = useState(false); // State to control modal visibility
   const [editedWeatherName, setEditedWeatherName] = useState(weather.priority); // Editable weather name
-
 
   const handleUnitSwitch = () => {
     setUnitSystem((prev) => (prev === "metric" ? "imperial" : "metric"));
   };
 
-  const handleCloseModal = ()=>{
-    setOpenModal(false)
-  }
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
+  const convertWindSpeed = (speed, unit) => {
+    if (unit === "imperial") {
+      return speed * 2.23694;
+    }
+    return speed;
+  };
+
+  const convertVisibility = (visibility, unit) => {
+    if (unit === "imperial") {
+      return visibility * 0.621371;
+    }
+    return visibility;
+  };
 
   const convertTemperature = (temp, unit) => {
     if (unit === "imperial") {
@@ -36,36 +49,77 @@ const WeatherCard = ({ weather , handleDelete, handleEdit}) => {
     }
     return temp;
   };
+
+  const roundToTwoDecimals = (num) => {
+    return Math.round(num * 100) / 100;
+  };
   return (
     <>
-    <Card
-      variant="elevation"
-      sx={{
-        marginBottom: 3,
-        padding: { xs: 2, sm: 3 },
-        boxShadow: 4,
-        borderRadius: 3,
-        background: "linear-gradient(to right, #e0f7fa, #ffffff)",
-        transition: "transform 0.2s",
-        "&:hover": {
-          transform: "scale(1.02)",
-          boxShadow: 6,
-        },
-      }}
-    >
-      <CardContent>
-        <Typography variant="h6">{weather.priority}</Typography>
-        <Typography>City: {weather.name}</Typography>
-        <Typography>
-          Temperature: {convertTemperature(weather.main.temp, unitSystem)}°{" "}
-          {unitSystem === "metric" ? "C" : "F"}
-        </Typography>
-        <Typography>Weather: {weather.weather[0].description}</Typography>
-        <Box display="flex" justifyContent="space-between" mt={2}>
-             <IconButton
+      <Card
+        variant="elevation"
+        sx={{
+          marginBottom: 3,
+          padding: { xs: 2, sm: 3 },
+          boxShadow: 4,
+          borderRadius: 3,
+          background: "linear-gradient(to right, #e0f7fa, #ffffff)",
+          transition: "transform 0.2s",
+          "&:hover": {
+            transform: "scale(1.02)",
+            boxShadow: 6,
+          },
+        }}
+      >
+        <CardContent>
+          {weather ? (
+            <Box mt={2}>
+              <Typography variant="h6">{weather.priority}</Typography>
+              <Typography>City: {weather.name}</Typography>
+              <Typography>
+                Temperature:{" "}
+                {roundToTwoDecimals(
+                  convertTemperature(weather.main.temp, unitSystem)
+                )}
+                ° {unitSystem === "metric" ? "C" : "F"}
+              </Typography>
+              <Typography>
+                Feels Like:{" "}
+                {roundToTwoDecimals(
+                  convertTemperature(weather.main.feels_like, unitSystem)
+                )}
+                ° {unitSystem === "metric" ? "C" : "F"}
+              </Typography>
+              <Typography>
+                Humidity: {roundToTwoDecimals(weather.main.humidity)}%
+              </Typography>
+              <Typography>
+                Wind Speed:{" "}
+                {roundToTwoDecimals(
+                  convertWindSpeed(weather.wind.speed, unitSystem)
+                )}{" "}
+                {unitSystem === "metric" ? "m/s" : "mph"}
+              </Typography>
+              <Typography>Weather: {weather.weather[0].description}</Typography>
+              <Typography>
+                Pressure: {roundToTwoDecimals(weather.main.pressure)} hPa
+              </Typography>
+              <Typography>
+                Visibility:{" "}
+                {roundToTwoDecimals(
+                  convertVisibility(weather.visibility / 1000, unitSystem)
+                )}{" "}
+                {unitSystem === "metric" ? "km" : "miles"}
+              </Typography>
+              <br />
+            </Box>
+          ) : (
+            <LoadingSpinner />
+          )}
+          <Box display="flex" justifyContent="space-between" mt={2}>
+            <IconButton
               aria-label="edit"
               color="primary"
-              onClick={()=>setOpenModal(true)}
+              onClick={() => setOpenModal(true)}
               sx={{
                 backgroundColor: "#e0f7fa",
                 "&:hover": { backgroundColor: "#b2ebf2" },
@@ -77,7 +131,7 @@ const WeatherCard = ({ weather , handleDelete, handleEdit}) => {
             <IconButton
               aria-label="delete"
               color="error"
-              onClick={()=>handleDelete(weather.id)}
+              onClick={() => handleDelete(weather.id)}
               sx={{
                 backgroundColor: "#ffcdd2",
                 "&:hover": { backgroundColor: "#ef9a9a" },
@@ -86,18 +140,19 @@ const WeatherCard = ({ weather , handleDelete, handleEdit}) => {
             >
               <DeleteIcon />
             </IconButton>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleUnitSwitch}
-          >
-            Switch to {unitSystem === "metric" ? "Imperial" : "Metric"}
-          </Button>
-        </Box>
-      </CardContent>
-    </Card>
-        <Dialog open={openModal} onClose={handleCloseModal}>
-        <DialogTitle>Edit Location</DialogTitle>         <DialogContent>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleUnitSwitch}
+            >
+              Switch to {unitSystem === "metric" ? "Imperial" : "Metric"}
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+      <Dialog open={openModal} onClose={handleCloseModal}>
+        <DialogTitle>Edit Location</DialogTitle>{" "}
+        <DialogContent>
           <TextField
             autoFocus
             margin="dense"
@@ -112,7 +167,13 @@ const WeatherCard = ({ weather , handleDelete, handleEdit}) => {
           <Button onClick={handleCloseModal} color="primary">
             Cancel
           </Button>
-          <Button onClick={()=>{handleEdit(weather, editedWeatherName); setOpenModal(false)}} color="primary">
+          <Button
+            onClick={() => {
+              handleEdit(weather, editedWeatherName);
+              setOpenModal(false);
+            }}
+            color="primary"
+          >
             Save
           </Button>
         </DialogActions>
@@ -140,9 +201,9 @@ const WeatherCard = ({ weather , handleDelete, handleEdit}) => {
 //         const data = await fetchWeatherDataForCity(weatherName);
 //         if (typeof data === "string") {
 //           console.error("Error from API:", data);
-//           setWeatherData(null); 
+//           setWeatherData(null);
 //         } else {
-//           setWeatherData(data); 
+//           setWeatherData(data);
 //         }
 //       } catch (error) {
 //         console.error("Error fetching category suggestion:", error);
@@ -156,7 +217,7 @@ const WeatherCard = ({ weather , handleDelete, handleEdit}) => {
 //     setWeatherData(null);
 //     try {
 //       await deleteWeather(weather.id);
-//       fetchData(); 
+//       fetchData();
 //     } catch (error) {
 //       console.error("Error during deletion:", error);
 //     }
@@ -169,7 +230,6 @@ const WeatherCard = ({ weather , handleDelete, handleEdit}) => {
 //   const handleCloseModal = () => {
 //     setOpenModal(false); // Close the modal
 //   };
-
 
 //   const handleSaveEdit = async () => {
 //     // Update the weather name with the edited value (you can also send it to the backend here)
@@ -203,24 +263,24 @@ const WeatherCard = ({ weather , handleDelete, handleEdit}) => {
 
 //   const convertTemperature = (temp: number, unit: string) => {
 //     if (unit === "imperial") {
-//       return (temp * 9) / 5 + 32; 
+//       return (temp * 9) / 5 + 32;
 //     }
 //     return temp;
 //   };
 
-//   const convertWindSpeed = (speed: number, unit: string) => {
-//     if (unit === "imperial") {
-//       return speed * 2.23694; 
-//     }
-//     return speed; 
-//   };
+// const convertWindSpeed = (speed: number, unit: string) => {
+//   if (unit === "imperial") {
+//     return speed * 2.23694;
+//   }
+//   return speed;
+// };
 
-//   const convertVisibility = (visibility: number, unit: string) => {
-//     if (unit === "imperial") {
-//       return visibility * 0.621371; 
-//     }
-//     return visibility; 
-//   };
+// const convertVisibility = (visibility: number, unit: string) => {
+//   if (unit === "imperial") {
+//     return visibility * 0.621371;
+//   }
+//   return visibility;
+// };
 
 //   const roundToTwoDecimals = (num: number) => {
 //     return Math.round(num * 100) / 100;
